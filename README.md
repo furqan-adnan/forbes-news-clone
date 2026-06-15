@@ -1,7 +1,7 @@
  # Forbes-Inspired React News Portal
 
 
-This is one of my first web applicaiton projects.
+This is one of my first web application projects.
 
 A premium, Forbes-inspired news web application built with React, featuring a live news feed API integration, smooth Framer Motion animations, and an interactive HTML5 Canvas background.
 
