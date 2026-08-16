@@ -176,28 +176,30 @@ function App() {
     return () => clearInterval(interval);
   }, [placeholderTexts.length]);
 
+  // Unified fetch that populates both Top Stories and News Feed via /api/gnews
   useEffect(() => {
-    const fetchFeaturedArticles = async () => {
+    const fetchAllNews = async () => {
       try {
-        const rawUrl = `https://gnews.io/api/v4/top-headlines?category=business&lang=en&max=3&apikey=${process.env.REACT_APP_GNEWS_API_KEY}`;
-        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(rawUrl)}`;
-        
-        const response = await fetch(proxyUrl);
+        const response = await fetch('/api/gnews');
         if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
         
         const data = await response.json();
+        
         if (data.articles && data.articles.length > 0) {
-          setFeaturedArticles(data.articles);
+          setFeaturedArticles(data.articles.slice(0, 3));
+          setNewsArticles(data.articles.slice(3, 10));
+          setLastUpdated(new Date());
         } else {
-          throw new Error('No articles returned from GNews');
+          throw new Error('No articles returned from serverless endpoint');
         }
       } catch (error) {
-        console.warn('GNews API unavailable, using fallback data:', error);
+        console.warn('API unavailable, using fallback data:', error);
+        
         setFeaturedArticles([
           {
             title: "Global Markets Reach Record High",
             description: "Stock markets worldwide hit all-time highs amid economic recovery.",
-            image: "https://placehold.co/1200x600/111/fff?text=Forbes+Top+Story",
+            image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&auto=format&fit=crop",
             url: "#",
             publishedAt: new Date().toISOString(),
             source: { name: "Forbes Staff" }
@@ -205,7 +207,7 @@ function App() {
           {
             title: "Tech Giants Announce New AI Partnerships",
             description: "Major technology companies form alliances to advance artificial intelligence research.",
-            image: "https://placehold.co/600x400/111/fff?text=Forbes+Tech",
+            image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&auto=format&fit=crop",
             url: "#",
             publishedAt: new Date().toISOString(),
             source: { name: "Forbes Tech" }
@@ -213,44 +215,19 @@ function App() {
           {
             title: "Economic Forecast Shows Strong Growth",
             description: "Analysts predict robust economic expansion in the coming quarter.",
-            image: "https://placehold.co/600x400/111/fff?text=Financial+Times",
+            image: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=800&auto=format&fit=crop",
             url: "#",
             publishedAt: new Date().toISOString(),
             source: { name: "Financial Times" }
           }
         ]);
-      } finally {
-        setLoadingFeatured(false);
-      }
-    };
 
-    fetchFeaturedArticles();
-  }, []);
-
-  useEffect(() => {
-    const fetchNewsArticles = async () => {
-      try {
-        const rawUrl = `https://newsapi.org/v2/top-headlines?category=business&language=en&pageSize=5&apiKey=${process.env.REACT_APP_NEWS_API_KEY}`;
-        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(rawUrl)}`;
-
-        const response = await fetch(proxyUrl);
-        if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
-
-        const data = await response.json();
-        if (data.status === 'ok' && data.articles) {
-          setNewsArticles(data.articles);
-          setLastUpdated(new Date());
-        } else {
-          throw new Error('NewsAPI failed to return valid news response');
-        }
-      } catch (error) {
-        console.warn('NewsAPI unavailable, using fallback data:', error);
         setNewsArticles([
           {
             title: "Breaking: Major Merger Announcement",
             description: "Two industry giants announce historic merger deal worth billions.",
             url: "#",
-            urlToImage: "https://placehold.co/600x400/111/fff?text=Business+Insider",
+            image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&auto=format&fit=crop",
             publishedAt: new Date().toISOString(),
             source: { name: "Business Insider" }
           },
@@ -258,7 +235,7 @@ function App() {
             title: "New Regulations Impact Tech Sector",
             description: "Government announces new policies that will affect major tech companies.",
             url: "#",
-            urlToImage: "https://placehold.co/600x400/111/fff?text=TechCrunch",
+            image: "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=800&auto=format&fit=crop",
             publishedAt: new Date().toISOString(),
             source: { name: "TechCrunch" }
           },
@@ -266,19 +243,20 @@ function App() {
             title: "Stock Market Hits All-Time High",
             description: "Major indices reach record levels amid economic optimism.",
             url: "#",
-            urlToImage: "https://placehold.co/600x400/111/fff?text=Wall+Street+Journal",
+            image: "https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=800&auto=format&fit=crop",
             publishedAt: new Date().toISOString(),
             source: { name: "Wall Street Journal" }
           }
         ]);
         setLastUpdated(new Date());
       } finally {
+        setLoadingFeatured(false);
         setLoadingNews(false);
       }
     };
 
-    fetchNewsArticles();
-    const interval = setInterval(fetchNewsArticles, 300000);
+    fetchAllNews();
+    const interval = setInterval(fetchAllNews, 300000); // Auto refresh every 5 mins
     return () => clearInterval(interval);
   }, []);
 
@@ -429,7 +407,7 @@ function App() {
               ) : (
                 <>
                   <div className="featured-article">
-                    <a href={featuredArticles[0]?.url || "#"} className="featured-link">
+                    <a href={featuredArticles[0]?.url || "#"} target="_blank" rel="noopener noreferrer" className="featured-link">
                       <div className="featured-image">
                         <img 
                           src={featuredArticles[0]?.image || featuredArticles[0]?.urlToImage || 'https://placehold.co/1200x600/111/fff?text=Forbes+News'} 
@@ -462,7 +440,7 @@ function App() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1, duration: 0.5 }}
                       >
-                        <a href={article.url || "#"} className="article-link">
+                        <a href={article.url || "#"} target="_blank" rel="noopener noreferrer" className="article-link">
                           <div className="article-image-container">
                             <img 
                               src={article.image || article.urlToImage || 'https://placehold.co/600x400/111/fff?text=Forbes+News'} 
@@ -514,7 +492,7 @@ function App() {
                       <a href={article.url || "#"} target="_blank" rel="noopener noreferrer" className="news-link">
                         <div className="news-image-container">
                           <img 
-                            src={article.urlToImage || article.image || 'https://placehold.co/600x400/111/fff?text=Forbes+News'} 
+                            src={article.image || article.urlToImage || 'https://placehold.co/600x400/111/fff?text=Forbes+News'} 
                             alt={article.title}
                             loading="lazy"
                           />
