@@ -110,7 +110,7 @@ import { GiHamburgerMenu } from 'react-icons/gi';
   }, [darkMode]);
 
   return (
-    < canvas 
+    <canvas 
       ref={canvasRef}
       className="grid-cursor-canvas"
     />
@@ -185,7 +185,7 @@ function App() {
     const fetchFeaturedArticles = async () => {
       try {
         const response = await fetch(
-          `https://gnews.io/api/v4/top-headlines?category=business&lang=en&max=3&apikey=da3c8e6bd490916c88201f6d33cebdf7`
+          `https://gnews.io/api/v4/top-headlines?category=business&lang=en&max=3&apikey=${process.env.REACT_APP_GNEWS_API_KEY}`
         );
         const data = await response.json();
         if (data.articles) {
@@ -231,7 +231,7 @@ function App() {
     const fetchNewsArticles = async () => {
       try {
         const response = await fetch(
-          `https://newsapi.org/v2/top-headlines?category=business&language=en&pageSize=5&apiKey=45e80d342e8243c2b2851cd5ca68c715`
+          `https://newsapi.org/v2/top-headlines?category=business&language=en&pageSize=5&apiKey=${process.env.REACT_APP_NEWS_API_KEY}`
         );
         const data = await response.json();
         if (data.status === 'ok') {
