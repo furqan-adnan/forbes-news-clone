@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { IoSunnyOutline, IoMoonOutline, IoClose, IoSearch, IoTimeOutline } from 'react-icons/io5';
 import { GiHamburgerMenu } from 'react-icons/gi';
 
+const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop";
+
 const GridCursorBackground = ({ darkMode }) => {
   const canvasRef = useRef(null);
   const mousePos = useRef({ x: 0, y: 0 });
@@ -135,6 +137,11 @@ function App() {
     "Search investment opportunities"
   ];
 
+  const handleImageError = (e) => {
+    e.target.onerror = null;
+    e.target.src = DEFAULT_IMAGE;
+  };
+
   useEffect(() => {
     const currentRef = searchContainerRef.current;
     const observer = new IntersectionObserver(
@@ -176,7 +183,6 @@ function App() {
     return () => clearInterval(interval);
   }, [placeholderTexts.length]);
 
-  // Unified fetch that populates both Top Stories and News Feed via /api/gnews
   useEffect(() => {
     const fetchAllNews = async () => {
       try {
@@ -197,26 +203,26 @@ function App() {
         
         setFeaturedArticles([
           {
-            title: "Global Markets Reach Record High",
-            description: "Stock markets worldwide hit all-time highs amid economic recovery.",
-            image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&auto=format&fit=crop",
-            url: "#",
+            title: "Global Markets Reach Record High Amid Economic Recovery",
+            description: "Stock markets worldwide hit all-time highs as corporate earnings exceed expectations.",
+            image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=1200&auto=format&fit=crop",
+            url: "https://www.forbes.com/markets",
             publishedAt: new Date().toISOString(),
             source: { name: "Forbes Staff" }
           },
           {
-            title: "Tech Giants Announce New AI Partnerships",
-            description: "Major technology companies form alliances to advance artificial intelligence research.",
-            image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&auto=format&fit=crop",
-            url: "#",
+            title: "Tech Giants Announce Strategic AI Partnerships",
+            description: "Major technology enterprise alliances formed to advance artificial intelligence infrastructure.",
+            image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=800&auto=format&fit=crop",
+            url: "https://www.techcrunch.com",
             publishedAt: new Date().toISOString(),
             source: { name: "Forbes Tech" }
           },
           {
-            title: "Economic Forecast Shows Strong Growth",
-            description: "Analysts predict robust economic expansion in the coming quarter.",
-            image: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=800&auto=format&fit=crop",
-            url: "#",
+            title: "Global Economic Forecast Points Toward Strong Expansion",
+            description: "Financial analysts predict robust quarterly business expansion across multiple emerging markets.",
+            image: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?q=80&w=800&auto=format&fit=crop",
+            url: "https://www.ft.com",
             publishedAt: new Date().toISOString(),
             source: { name: "Financial Times" }
           }
@@ -224,28 +230,28 @@ function App() {
 
         setNewsArticles([
           {
-            title: "Breaking: Major Merger Announcement",
-            description: "Two industry giants announce historic merger deal worth billions.",
-            url: "#",
-            image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&auto=format&fit=crop",
+            title: "Major Merger Announcement Shakes Up Retail Sector",
+            description: "Two global industry leaders announce multi-billion dollar consolidation agreement.",
+            url: "https://www.businessinsider.com",
+            image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=800&auto=format&fit=crop",
             publishedAt: new Date().toISOString(),
             source: { name: "Business Insider" }
           },
           {
-            title: "New Regulations Impact Tech Sector",
-            description: "Government announces new policies that will affect major tech companies.",
-            url: "#",
-            image: "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=800&auto=format&fit=crop",
-            publishedAt: new Date().toISOString(),
-            source: { name: "TechCrunch" }
-          },
-          {
-            title: "Stock Market Hits All-Time High",
-            description: "Major indices reach record levels amid economic optimism.",
-            url: "#",
-            image: "https://images.unsplash.com/photo-1535320903710-d993d3d77d29?w=800&auto=format&fit=crop",
+            title: "New Regulatory Policies Framework Introduced for FinTech",
+            description: "Government agencies issue updated operational compliance guidelines for technology ventures.",
+            url: "https://www.wsj.com",
+            image: "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=800&auto=format&fit=crop",
             publishedAt: new Date().toISOString(),
             source: { name: "Wall Street Journal" }
+          },
+          {
+            title: "Venture Capital Investments Surpass Q3 Projections",
+            description: "Early-stage software and deep-tech funding rounds show historic momentum.",
+            url: "https://www.bloomberg.com",
+            image: "https://images.unsplash.com/photo-1535320903710-d993d3d77d29?q=80&w=800&auto=format&fit=crop",
+            publishedAt: new Date().toISOString(),
+            source: { name: "Bloomberg" }
           }
         ]);
         setLastUpdated(new Date());
@@ -256,7 +262,7 @@ function App() {
     };
 
     fetchAllNews();
-    const interval = setInterval(fetchAllNews, 300000); // Auto refresh every 5 mins
+    const interval = setInterval(fetchAllNews, 300000);
     return () => clearInterval(interval);
   }, []);
 
@@ -291,6 +297,10 @@ function App() {
     'Lifestyle',
     'Lists'
   ];
+
+  const getArticleUrl = (url) => {
+    return (url && url !== '#' && url !== '') ? url : 'https://www.forbes.com';
+  };
 
   return (
     <div className={`forbes-container ${darkMode ? 'dark-mode' : ''}`}>
@@ -407,12 +417,18 @@ function App() {
               ) : (
                 <>
                   <div className="featured-article">
-                    <a href={featuredArticles[0]?.url || "#"} target="_blank" rel="noopener noreferrer" className="featured-link">
+                    <a 
+                      href={getArticleUrl(featuredArticles[0]?.url)} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="featured-link"
+                    >
                       <div className="featured-image">
                         <img 
-                          src={featuredArticles[0]?.image || featuredArticles[0]?.urlToImage || 'https://placehold.co/1200x600/111/fff?text=Forbes+News'} 
+                          src={featuredArticles[0]?.image || featuredArticles[0]?.urlToImage || DEFAULT_IMAGE} 
                           alt={featuredArticles[0]?.title || 'Featured Story'} 
                           loading="lazy"
+                          onError={handleImageError}
                         />
                       </div>
                       <div className="featured-text">
@@ -440,12 +456,18 @@ function App() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1, duration: 0.5 }}
                       >
-                        <a href={article.url || "#"} target="_blank" rel="noopener noreferrer" className="article-link">
+                        <a 
+                          href={getArticleUrl(article.url)} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="article-link"
+                        >
                           <div className="article-image-container">
                             <img 
-                              src={article.image || article.urlToImage || 'https://placehold.co/600x400/111/fff?text=Forbes+News'} 
+                              src={article.image || article.urlToImage || DEFAULT_IMAGE} 
                               alt={article.title}
                               loading="lazy"
+                              onError={handleImageError}
                             />
                           </div>
                           <div className="article-content">
@@ -489,12 +511,18 @@ function App() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
                     >
-                      <a href={article.url || "#"} target="_blank" rel="noopener noreferrer" className="news-link">
+                      <a 
+                        href={getArticleUrl(article.url)} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="news-link"
+                      >
                         <div className="news-image-container">
                           <img 
-                            src={article.image || article.urlToImage || 'https://placehold.co/600x400/111/fff?text=Forbes+News'} 
+                            src={article.image || article.urlToImage || DEFAULT_IMAGE} 
                             alt={article.title}
                             loading="lazy"
+                            onError={handleImageError}
                           />
                         </div>
                         <div className="news-content">
