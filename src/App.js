@@ -133,7 +133,6 @@ function App() {
 
   const placeholderTexts = [
     "Search top rated CEOs",
-    "Search best economies 2023",
     "Search Fortune 500 companies",
     "Search most innovative startups",
     "Search wealthiest entrepreneurs",
